@@ -211,8 +211,8 @@ th { background-color: #0077cc; color: white; }
 
 <script>
 const OTP = 2160;
-let currentUser = null;
-let activeUsers = [];
+let currentUser = localStorage.getItem("currentUser") || null;
+let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
 let users = JSON.parse(localStorage.getItem("users")) || { "admin":"admin123", "user":"user123" };
 
 const choiceForm = document.getElementById("choiceForm");
@@ -224,13 +224,24 @@ const logoutBtn = document.getElementById("logoutBtn");
 const showDataBtn = document.getElementById("showDataBtn");
 const hideDataBtn = document.getElementById("hideDataBtn");
 
-// Navigation
+// --- Restore session on page load ---
+window.onload = () => {
+  if (currentUser) {
+    document.getElementById("tabs").style.display = "block";
+    document.getElementById("defaultOpen").click();
+    logoutBtn.style.display = "block";
+    adminTab.style.display = (currentUser === "admin") ? "inline-block" : "none";
+    choiceForm.style.display = "none";
+  }
+};
+
+// --- Navigation ---
 document.getElementById("loginBtn").onclick = () => { choiceForm.style.display = "none"; loginForm.style.display = "block"; };
 document.getElementById("registerBtn").onclick = () => { choiceForm.style.display = "none"; registerForm.style.display = "block"; };
 document.getElementById("backLogin").onclick = () => { loginForm.style.display = "none"; choiceForm.style.display = "block"; document.getElementById("loginError").textContent = ""; };
 document.getElementById("backRegister").onclick = () => { registerForm.style.display = "none"; choiceForm.style.display = "block"; document.getElementById("regError").textContent = ""; document.getElementById("regSuccess").textContent = ""; };
 
-// Login
+// --- Login ---
 document.getElementById("doLogin").onclick = () => {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
@@ -239,6 +250,9 @@ document.getElementById("doLogin").onclick = () => {
   if(users[username] && users[username] === password){
     currentUser = username;
     if(!activeUsers.includes(username)) activeUsers.push(username);
+
+    localStorage.setItem("currentUser", currentUser);
+    localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
 
     loginForm.style.display = "none";
     document.getElementById("tabs").style.display = "block";
@@ -251,7 +265,7 @@ document.getElementById("doLogin").onclick = () => {
   } else errorMsg.textContent = "Invalid username or password!";
 };
 
-// Register
+// --- Register ---
 document.getElementById("doRegister").onclick = () => {
   const username = document.getElementById("regUsername").value.trim();
   const password = document.getElementById("regPassword").value.trim();
@@ -268,9 +282,11 @@ document.getElementById("doRegister").onclick = () => {
   successMsg.textContent = "Registration successful! You can now log in.";
 };
 
-// Logout
+// --- Logout ---
 logoutBtn.onclick = () => {
   if(currentUser) { const index = activeUsers.indexOf(currentUser); if(index > -1) activeUsers.splice(index,1); }
+  localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
+  localStorage.removeItem("currentUser");
 
   currentUser = null;
   logoutBtn.style.display = "none";
@@ -284,7 +300,7 @@ logoutBtn.onclick = () => {
   alert("You have been logged out securely.");
 };
 
-// Tabs
+// --- Tabs ---
 function openTab(evt, tabName){
   const tabcontent = document.getElementsByClassName("tabcontent");
   for(let i=0;i<tabcontent.length;i++) tabcontent[i].style.display="none";
@@ -294,7 +310,7 @@ function openTab(evt, tabName){
   evt.currentTarget.className += " active";
 }
 
-// Admin Data
+// --- Admin Data ---
 showDataBtn.onclick = () => {
   const enteredPin = prompt("Enter admin access password:");
   if(enteredPin === "1997"){ updateUsersTable(); usersTable.style.display = "table"; showDataBtn.style.display = "none"; hideDataBtn.style.display = "inline-block"; }
@@ -312,7 +328,7 @@ function updateUsersTable(){
   }
 }
 
-// Accordion functionality
+// --- Accordion ---
 const accBtns = document.querySelectorAll(".accordionBtn");
 accBtns.forEach(btn => {
   btn.addEventListener("click", function() {
@@ -323,7 +339,7 @@ accBtns.forEach(btn => {
   });
 });
 
-// Spectrum Access simulated ESP32 data
+// --- Spectrum Access simulated ESP32 data ---
 function fetchSpectrumData() {
   const dataElem = document.getElementById("spectrumData");
   setTimeout(() => {
@@ -337,5 +353,6 @@ function fetchSpectrumData() {
 }
 fetchSpectrumData();
 </script>
+
 </body>
 </html>
