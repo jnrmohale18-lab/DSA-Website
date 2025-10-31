@@ -49,6 +49,18 @@ th { background-color: #0077cc; color: white; }
 }
 #showDataBtn:hover, #hideDataBtn:hover { background:#005fa3; }
 
+.actionBtn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  margin-right: 5px;
+}
+.deactivateBtn { background-color: #f39c12; }
+.deleteBtn { background-color: #e74c3c; }
+.reactivateBtn { background-color: #2ecc71; }
+
 /* Accordion Styles */
 .accordionBtn {
   background-color: #f1f1f1;
@@ -131,9 +143,6 @@ th { background-color: #0077cc; color: white; }
   <p>
     Dynamic Spectrum Access (DSA) is a technology that allows efficient use of the radio frequency spectrum by dynamically allocating channels to users. This website demonstrates user management and real-time status tracking for DSA systems.
   </p>
-  <p>
-    A cognitive radio is used to scan the 433MHz - 450MHz frequency band to determine and identify points on the frequency band that are open and allow users to opportunistically access the free bands.
-  </p>
 </div>
 
 <!-- Contents Section -->
@@ -141,61 +150,28 @@ th { background-color: #0077cc; color: white; }
   <h2>Contents</h2>
   <div class="accordion">
     <button class="accordionBtn">Introduction to DSA</button>
-    <div class="panel"><p>Dynamic Spectrum Access (DSA), a method for efficiently utilizing radio frequency spectrum and enabling opportunistic communication.</p></div>
+    <div class="panel"><p>Dynamic Spectrum Access (DSA) efficiently uses radio frequency spectrum for opportunistic communication.</p></div>
 
     <button class="accordionBtn">System Objectives</button>
-    <div class="panel"><p>Understand the main goals of this DSA system, including real-time spectrum monitoring, user management, and spectrum optimization.</p></div>
+    <div class="panel"><p>Real-time spectrum monitoring, user management, and spectrum optimization.</p></div>
 
     <button class="accordionBtn">User Roles & Access</button>
-    <div class="panel"><p>Explore the different roles within the system—users and admin—with their corresponding access rights and permissions.</p></div>
-
-    <button class="accordionBtn">Project Timeline</button>
-    <div class="panel"><p>Timeline of project milestones, from development to deployment and testing.</p></div>
-
-    <button class="accordionBtn">Resources & References</button>
-    <div class="panel"><p>Resources, references, and tools used to develop and support the DSA system.</p></div>
-
-    <button class="accordionBtn">Contact Information</button>
-    <div class="panel"><p>Email: jnrmohale18@gmail.com<br>Tel: 081 500 5949</p></div>
+    <div class="panel"><p>Users and Admin roles with defined permissions.</p></div>
   </div>
 </div>
 
 <!-- Stakeholders Section -->
 <div id="Stakeholders" class="tabcontent">
   <h2>Stakeholders</h2>
-  <div style="margin-bottom: 15px;">
-    <img src="image.png" alt="Tshepo Mabote" style="width:100px; border-radius:50%; vertical-align:middle; margin-right:10px;">
-    <strong>Tshepo Mabote</strong> – Project Manager, oversees implementation and testing. Mr. Mabote is a final-year student at the University of Johannesburg.
-  </div>
-
-  <div style="margin-bottom: 15px;">
-    <img src="image.png" alt="Mr Lucas Tivani" style="width:100px; border-radius:50%; vertical-align:middle; margin-right:10px;">
-    <strong>Lucas Tivani</strong> – Project Supervisor. Mr. Tivani is an experienced academic in Electrical and Electronic Engineering Science and IT.
-  </div>
-
-  <div style="margin-bottom: 15px;">
-    <img src="image.png" alt="Mr Ntsako Mabunda" style="width:100px; border-radius:50%; vertical-align:middle; margin-right:10px;">
-    <strong>Ntsako Mabunda</strong> – External Project Supervisor. Mr. Mabunda has vast experience in telecommunications.
-  </div>
-
-  <div style="margin-bottom: 15px;">
-    <img src="image.png" alt="CSIR" style="width:100px; border-radius:50%; vertical-align:middle; margin-right:10px;">
-    <strong>CSIR</strong> – Project Sponsor. The Council for Scientific and Industrial Research (CSIR) is a leading research organisation accelerating socioeconomic prosperity in South Africa.
-  </div>
+  <p>Stakeholders include project members, supervisors, and sponsors.</p>
 </div>
 
 <!-- Spectrum Access Section -->
 <div id="SpectrumAccess" class="tabcontent">
   <h2>Spectrum Access</h2>
-
   <button class="accordionBtn">Spectrum Availability</button>
   <div class="panel">
     <p id="spectrumData">Fetching data from ESP32...</p>
-  </div>
-
-  <button class="accordionBtn">Spectrum Pricing</button>
-  <div class="panel">
-    <p>Example Pricing:<br>Low Band: R150/hr<br>High Band: R250/hr</p>
   </div>
 </div>
 
@@ -205,7 +181,7 @@ th { background-color: #0077cc; color: white; }
   <button id="showDataBtn">Show User Data</button>
   <button id="hideDataBtn" style="display:none;">Hide User Data</button>
   <table id="usersTable">
-    <tr><th>Username</th><th>Password</th><th>Status</th></tr>
+    <tr><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>
   </table>
 </div>
 
@@ -213,7 +189,10 @@ th { background-color: #0077cc; color: white; }
 const OTP = 2160;
 let currentUser = localStorage.getItem("currentUser") || null;
 let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
-let users = JSON.parse(localStorage.getItem("users")) || { "admin":"admin123", "user":"user123" };
+let users = JSON.parse(localStorage.getItem("users")) || {
+  "admin": { password: "admin123", status: "active" },
+  "user": { password: "user123", status: "active" }
+};
 
 const choiceForm = document.getElementById("choiceForm");
 const loginForm = document.getElementById("loginForm");
@@ -224,8 +203,9 @@ const logoutBtn = document.getElementById("logoutBtn");
 const showDataBtn = document.getElementById("showDataBtn");
 const hideDataBtn = document.getElementById("hideDataBtn");
 
-// --- Restore session on page load ---
+// --- Restore session ---
 window.onload = () => {
+  localStorage.setItem("users", JSON.stringify(users));
   if (currentUser) {
     document.getElementById("tabs").style.display = "block";
     document.getElementById("defaultOpen").click();
@@ -235,34 +215,31 @@ window.onload = () => {
   }
 };
 
-// --- Navigation ---
-document.getElementById("loginBtn").onclick = () => { choiceForm.style.display = "none"; loginForm.style.display = "block"; };
-document.getElementById("registerBtn").onclick = () => { choiceForm.style.display = "none"; registerForm.style.display = "block"; };
-document.getElementById("backLogin").onclick = () => { loginForm.style.display = "none"; choiceForm.style.display = "block"; document.getElementById("loginError").textContent = ""; };
-document.getElementById("backRegister").onclick = () => { registerForm.style.display = "none"; choiceForm.style.display = "block"; document.getElementById("regError").textContent = ""; document.getElementById("regSuccess").textContent = ""; };
-
 // --- Login ---
 document.getElementById("doLogin").onclick = () => {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
   const errorMsg = document.getElementById("loginError");
 
-  if(users[username] && users[username] === password){
+  if (users[username] && users[username].password === password) {
+    if (users[username].status === "inactive") {
+      errorMsg.textContent = "This account is deactivated. Contact admin.";
+      return;
+    }
     currentUser = username;
-    if(!activeUsers.includes(username)) activeUsers.push(username);
-
+    if (!activeUsers.includes(username)) activeUsers.push(username);
     localStorage.setItem("currentUser", currentUser);
     localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
-
+    errorMsg.textContent = "";
     loginForm.style.display = "none";
     document.getElementById("tabs").style.display = "block";
     document.getElementById("defaultOpen").click();
     logoutBtn.style.display = "block";
     alert(`Welcome, ${username}!`);
-
-    adminTab.style.display = (currentUser === "admin") ? "inline-block" : "none";
-    if(currentUser === "admin") hideAdminData();
-  } else errorMsg.textContent = "Invalid username or password!";
+    adminTab.style.display = (username === "admin") ? "inline-block" : "none";
+  } else {
+    errorMsg.textContent = "Invalid username or password!";
+  }
 };
 
 // --- Register ---
@@ -273,10 +250,22 @@ document.getElementById("doRegister").onclick = () => {
   const errorMsg = document.getElementById("regError");
   const successMsg = document.getElementById("regSuccess");
 
-  if(!username || !password){ errorMsg.textContent = "Please enter username and password!"; successMsg.textContent = ""; return; }
-  if(otpInput !== OTP){ errorMsg.textContent = "Incorrect One-Time PIN!"; successMsg.textContent = ""; return; }
+  if (!username || !password) {
+    errorMsg.textContent = "Please enter username and password!";
+    successMsg.textContent = "";
+    return;
+  }
+  if (otpInput !== OTP) {
+    errorMsg.textContent = "Incorrect One-Time PIN!";
+    successMsg.textContent = "";
+    return;
+  }
+  if (users[username]) {
+    errorMsg.textContent = "Username already exists!";
+    return;
+  }
 
-  users[username] = password;
+  users[username] = { password, status: "active" };
   localStorage.setItem("users", JSON.stringify(users));
   errorMsg.textContent = "";
   successMsg.textContent = "Registration successful! You can now log in.";
@@ -284,53 +273,88 @@ document.getElementById("doRegister").onclick = () => {
 
 // --- Logout ---
 logoutBtn.onclick = () => {
-  if(currentUser) { const index = activeUsers.indexOf(currentUser); if(index > -1) activeUsers.splice(index,1); }
+  if (currentUser) {
+    const idx = activeUsers.indexOf(currentUser);
+    if (idx > -1) activeUsers.splice(idx, 1);
+  }
   localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
   localStorage.removeItem("currentUser");
-
   currentUser = null;
   logoutBtn.style.display = "none";
   document.getElementById("tabs").style.display = "none";
   choiceForm.style.display = "block";
   adminTab.style.display = "none";
   hideAdminData();
-
-  const sections = document.getElementsByClassName("tabcontent");
-  for(let i=0;i<sections.length;i++) sections[i].style.display="none";
   alert("You have been logged out securely.");
 };
 
 // --- Tabs ---
-function openTab(evt, tabName){
+function openTab(evt, tabName) {
   const tabcontent = document.getElementsByClassName("tabcontent");
-  for(let i=0;i<tabcontent.length;i++) tabcontent[i].style.display="none";
+  for (let i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
   const tablinks = document.getElementsByClassName("tablinks");
-  for(let i=0;i<tablinks.length;i++) tablinks[i].className = tablinks[i].className.replace(" active","");
-  document.getElementById(tabName).style.display="block";
+  for (let i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+  document.getElementById(tabName).style.display = "block";
   evt.currentTarget.className += " active";
 }
 
-// --- Admin Data ---
+// --- Admin Panel Logic ---
 showDataBtn.onclick = () => {
   const enteredPin = prompt("Enter admin access password:");
-  if(enteredPin === "1997"){ updateUsersTable(); usersTable.style.display = "table"; showDataBtn.style.display = "none"; hideDataBtn.style.display = "inline-block"; }
-  else alert("Incorrect password. Access denied!");
+  if (enteredPin === "1997") {
+    updateUsersTable();
+    usersTable.style.display = "table";
+    showDataBtn.style.display = "none";
+    hideDataBtn.style.display = "inline-block";
+  } else alert("Incorrect password. Access denied!");
 };
 hideDataBtn.onclick = () => { usersTable.style.display = "none"; hideDataBtn.style.display = "none"; showDataBtn.style.display = "inline-block"; };
-function hideAdminData(){ usersTable.style.display = "none"; showDataBtn.style.display = "inline-block"; hideDataBtn.style.display = "none"; }
-function updateUsersTable(){
-  usersTable.innerHTML = "<tr><th>Username</th><th>Password</th><th>Status</th></tr>";
-  for(const username in users){
+function hideAdminData() { usersTable.style.display = "none"; showDataBtn.style.display = "inline-block"; hideDataBtn.style.display = "none"; }
+
+function updateUsersTable() {
+  usersTable.innerHTML = "<tr><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>";
+  for (const username in users) {
+    const user = users[username];
     const row = usersTable.insertRow();
     row.insertCell(0).textContent = username;
-    row.insertCell(1).textContent = users[username];
-    row.insertCell(2).textContent = activeUsers.includes(username) ? "Online" : "Offline";
+    row.insertCell(1).textContent = user.password;
+    row.insertCell(2).textContent = user.status === "inactive" ? "Inactive" : (activeUsers.includes(username) ? "Online" : "Offline");
+
+    const actionsCell = row.insertCell(3);
+    if (username !== "admin") {
+      if (user.status === "active") {
+        const deactivateBtn = document.createElement("button");
+        deactivateBtn.textContent = "Deactivate";
+        deactivateBtn.className = "actionBtn deactivateBtn";
+        deactivateBtn.onclick = () => { user.status = "inactive"; localStorage.setItem("users", JSON.stringify(users)); updateUsersTable(); };
+        actionsCell.appendChild(deactivateBtn);
+      } else {
+        const reactivateBtn = document.createElement("button");
+        reactivateBtn.textContent = "Reactivate";
+        reactivateBtn.className = "actionBtn reactivateBtn";
+        reactivateBtn.onclick = () => { user.status = "active"; localStorage.setItem("users", JSON.stringify(users)); updateUsersTable(); };
+        actionsCell.appendChild(reactivateBtn);
+      }
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.className = "actionBtn deleteBtn";
+      deleteBtn.onclick = () => {
+        if (confirm(`Are you sure you want to delete ${username}?`)) {
+          delete users[username];
+          localStorage.setItem("users", JSON.stringify(users));
+          updateUsersTable();
+        }
+      };
+      actionsCell.appendChild(deleteBtn);
+    } else {
+      actionsCell.textContent = "Admin";
+    }
   }
 }
 
 // --- Accordion ---
-const accBtns = document.querySelectorAll(".accordionBtn");
-accBtns.forEach(btn => {
+document.querySelectorAll(".accordionBtn").forEach(btn => {
   btn.addEventListener("click", function() {
     const panel = this.nextElementSibling;
     const isOpen = panel.style.maxHeight && panel.style.maxHeight !== "0px";
@@ -339,20 +363,15 @@ accBtns.forEach(btn => {
   });
 });
 
-// --- Spectrum Access simulated ESP32 data ---
-function fetchSpectrumData() {
-  const dataElem = document.getElementById("spectrumData");
-  setTimeout(() => {
-    dataElem.innerHTML = `
-      <strong>Available Frequencies:</strong><br>
-      433.1 MHz - Free<br>
-      434.5 MHz - Occupied<br>
-      445.0 MHz - Free
-    `;
-  }, 1000);
-}
-fetchSpectrumData();
+// --- Simulated Spectrum Data ---
+setTimeout(() => {
+  document.getElementById("spectrumData").innerHTML = `
+    <strong>Available Frequencies:</strong><br>
+    433.1 MHz - Free<br>
+    434.5 MHz - Occupied<br>
+    445.0 MHz - Free
+  `;
+}, 1000);
 </script>
-
 </body>
 </html>
