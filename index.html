@@ -5,108 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynamic Spectrum Access</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; }
-header { background: #0077cc; color: white; padding: 20px; text-align: center; position: relative; }
+body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; color:#333; }
+header { background:#0077cc; color:white; text-align:center; padding:20px; position:relative; }
+#logoutBtn { position:absolute; right:20px; top:20px; background:#ff4b4b; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; display:none; }
+#logoutBtn:hover { background:#c13d3d; }
 
-#logoutBtn {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  background-color: #ff4b4b;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: none;
-}
-#logoutBtn:hover { background-color: #d43f3f; }
+.container { max-width:400px; margin:40px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); text-align:center; }
+.container input, .container button { width:100%; padding:10px; margin:8px 0; border-radius:5px; border:1px solid #ccc; }
+.container button { background:#0077cc; color:white; border:none; cursor:pointer; }
+.container button:hover { background:#005fa3; }
+.error { color:red; } .success { color:green; }
 
-.container { max-width: 400px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-.container input, .container button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
-.container button { background-color: #0077cc; color: white; border: none; cursor: pointer; }
-.container button:hover { background-color: #005fa3; }
-.error { color: red; } .success { color: green; }
+.tab { overflow:hidden; background:white; max-width:900px; margin:20px auto 0; border-radius:10px 10px 0 0; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+.tab button { background:inherit; border:none; outline:none; cursor:pointer; padding:14px 20px; font-size:16px; transition:0.3s; }
+.tab button:hover { background:#e7f0fc; }
+.tab button.active { background:#0077cc; color:white; border-radius:10px 10px 0 0; }
 
-.tab { overflow: hidden; background-color: #fff; margin: 20px auto 0; max-width: 900px; border-radius: 10px 10px 0 0; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-.tab button { background-color: inherit; border: none; outline: none; cursor: pointer; padding: 14px 20px; transition: 0.3s; font-size: 16px; }
-.tab button:hover { background-color: #e7f0fc; }
-.tab button.active { background-color: #0077cc; color: white; border-radius: 10px 10px 0 0; }
-.tabcontent { display: none; padding: 20px; max-width: 900px; margin: 0 auto 20px; background-color: white; border-radius: 0 0 10px 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+.tabcontent { display:none; padding:20px; max-width:900px; margin:0 auto 20px; background:white; border-radius:0 0 10px 10px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
 
-table { width: 100%; border-collapse: collapse; display:none; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } 
-th { background-color: #0077cc; color: white; }
+table { width:100%; border-collapse:collapse; margin-top:15px; }
+th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+th { background:#0077cc; color:white; }
 
-#showDataBtn, #hideDataBtn {
-  background:#0077cc; 
-  color:white; 
-  border:none; 
-  padding:8px 15px; 
-  border-radius:5px; 
-  cursor:pointer; 
-  margin-bottom: 10px;
-}
-#showDataBtn:hover, #hideDataBtn:hover { background:#005fa3; }
+.status-active { color:green; font-weight:bold; }
+.status-inactive { color:red; font-weight:bold; }
+.status-online { color:orange; font-weight:bold; }
 
-.actionBtn {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  color: white;
-  margin-right: 5px;
-}
-.deactivateBtn { background-color: #f39c12; }
-.deleteBtn { background-color: #e74c3c; }
-.reactivateBtn { background-color: #2ecc71; }
+.actionBtn { border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px; }
+.deactivateBtn { background:#f39c12; }
+.reactivateBtn { background:#2ecc71; }
+.deleteBtn { background:#e74c3c; }
 
-/* Accordion Styles */
-.accordionBtn {
-  background-color: #f1f1f1;
-  color: #0077cc;
-  cursor: pointer;
-  padding: 12px 20px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 16px;
-  border-radius: 5px;
-  margin-bottom: 5px;
-  transition: 0.3s;
-}
-.accordionBtn:hover { background-color: #e0e0e0; }
-.panel {
-  background-color: white;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  padding-left: 20px;
-  border-left: 2px solid #0077cc;
-  border-right: 2px solid #0077cc;
-  border-bottom: 2px solid #0077cc;
-  margin-bottom: 5px;
-  border-radius: 0 0 5px 5px;
-}
+#showDataBtn, #hideDataBtn { background:#0077cc; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; }
+#hideDataBtn { display:none; }
+
+/* Accordion styling */
+.accordionBtn { background:#f1f1f1; color:#0077cc; cursor:pointer; padding:12px 20px; width:100%; border:none; text-align:left; outline:none; font-size:16px; border-radius:5px; margin-bottom:5px; transition:0.3s; }
+.accordionBtn:hover { background:#e0e0e0; }
+.panel { background:white; max-height:0; overflow:hidden; transition:max-height 0.3s ease; padding-left:20px; border-left:2px solid #0077cc; border-right:2px solid #0077cc; border-bottom:2px solid #0077cc; border-radius:0 0 5px 5px; margin-bottom:5px; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Dynamic Spectrum Access</h1>
-  <button id="logoutBtn">Log Out</button>
+  <button id="logoutBtn">Logout</button>
 </header>
 
-<!-- Welcome / Choice -->
+<!-- Home choice -->
 <div class="container" id="choiceForm">
-  <h2>Welcome!</h2>
-  <p>Please login or register to access the website.</p>
+  <h2>Welcome</h2>
+  <p>Login or register to access the platform.</p>
   <button id="loginBtn">Login</button>
   <button id="registerBtn">Register</button>
 </div>
 
-<!-- Login Form -->
+<!-- Login -->
 <div class="container" id="loginForm" style="display:none;">
   <h2>Login</h2>
   <input type="text" id="loginUsername" placeholder="Username">
@@ -116,7 +70,7 @@ th { background-color: #0077cc; color: white; }
   <button id="backLogin">Back</button>
 </div>
 
-<!-- Registration Form -->
+<!-- Register -->
 <div class="container" id="registerForm" style="display:none;">
   <h2>Register</h2>
   <input type="text" id="regUsername" placeholder="Username">
@@ -132,55 +86,37 @@ th { background-color: #0077cc; color: white; }
 <div class="tab" id="tabs" style="display:none;">
   <button class="tablinks" onclick="openTab(event, 'About')" id="defaultOpen">About</button>
   <button class="tablinks" onclick="openTab(event, 'Contents')">Contents</button>
-  <button class="tablinks" onclick="openTab(event, 'Stakeholders')">Stakeholders</button>
-  <button class="tablinks" onclick="openTab(event, 'SpectrumAccess')">Spectrum Access</button>
-  <button class="tablinks" onclick="openTab(event, 'AdminPanel')" id="adminTab" style="display:none;">Admin Panel</button>
+  <button class="tablinks" onclick="openTab(event, 'Spectrum')">Spectrum</button>
+  <button class="tablinks" id="adminTab" onclick="openTab(event, 'Admin')" style="display:none;">Admin Panel</button>
 </div>
 
-<!-- About Section -->
+<!-- About -->
 <div id="About" class="tabcontent">
-  <h2>About Dynamic Spectrum Access</h2>
-  <p>
-    Dynamic Spectrum Access (DSA) is a technology that allows efficient use of the radio frequency spectrum by dynamically allocating channels to users. This website demonstrates user management and real-time status tracking for DSA systems.
-  </p>
+  <h2>About DSA</h2>
+  <p>Dynamic Spectrum Access (DSA) allows more efficient use of spectrum by allocating frequencies dynamically.</p>
 </div>
 
-<!-- Contents Section -->
+<!-- Contents -->
 <div id="Contents" class="tabcontent">
   <h2>Contents</h2>
-  <div class="accordion">
-    <button class="accordionBtn">Introduction to DSA</button>
-    <div class="panel"><p>Dynamic Spectrum Access (DSA) efficiently uses radio frequency spectrum for opportunistic communication.</p></div>
-
-    <button class="accordionBtn">System Objectives</button>
-    <div class="panel"><p>Real-time spectrum monitoring, user management, and spectrum optimization.</p></div>
-
-    <button class="accordionBtn">User Roles & Access</button>
-    <div class="panel"><p>Users and Admin roles with defined permissions.</p></div>
-  </div>
+  <button class="accordionBtn">Introduction to DSA</button>
+  <div class="panel"><p>DSA dynamically assigns frequencies to optimize usage.</p></div>
+  <button class="accordionBtn">System Objectives</button>
+  <div class="panel"><p>Improve efficiency and prevent interference.</p></div>
 </div>
 
-<!-- Stakeholders Section -->
-<div id="Stakeholders" class="tabcontent">
-  <h2>Stakeholders</h2>
-  <p>Stakeholders include project members, supervisors, and sponsors.</p>
-</div>
-
-<!-- Spectrum Access Section -->
-<div id="SpectrumAccess" class="tabcontent">
-  <h2>Spectrum Access</h2>
-  <button class="accordionBtn">Spectrum Availability</button>
-  <div class="panel">
-    <p id="spectrumData">Fetching data from ESP32...</p>
-  </div>
+<!-- Spectrum -->
+<div id="Spectrum" class="tabcontent">
+  <h2>Live Spectrum Data</h2>
+  <p id="spectrumData">Fetching spectrum data...</p>
 </div>
 
 <!-- Admin Panel -->
-<div id="AdminPanel" class="tabcontent">
-  <h2>Registered Users Details</h2>
-  <button id="showDataBtn">Show User Data</button>
-  <button id="hideDataBtn" style="display:none;">Hide User Data</button>
-  <table id="usersTable">
+<div id="Admin" class="tabcontent">
+  <h2>Admin Control Panel</h2>
+  <button id="showDataBtn">Show Users</button>
+  <button id="hideDataBtn">Hide Users</button>
+  <table id="usersTable" style="display:none;">
     <tr><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>
   </table>
 </div>
@@ -188,190 +124,137 @@ th { background-color: #0077cc; color: white; }
 <script>
 const OTP = 2160;
 let currentUser = localStorage.getItem("currentUser") || null;
-let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
 let users = JSON.parse(localStorage.getItem("users")) || {
   "admin": { password: "admin123", status: "active" },
   "user": { password: "user123", status: "active" }
 };
+let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
 
-const choiceForm = document.getElementById("choiceForm");
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
-const adminTab = document.getElementById("adminTab");
-const usersTable = document.getElementById("usersTable");
-const logoutBtn = document.getElementById("logoutBtn");
-const showDataBtn = document.getElementById("showDataBtn");
-const hideDataBtn = document.getElementById("hideDataBtn");
-
-// --- Restore session ---
+// Restore session
 window.onload = () => {
-  localStorage.setItem("users", JSON.stringify(users));
-  if (currentUser) {
-    document.getElementById("tabs").style.display = "block";
-    document.getElementById("defaultOpen").click();
-    logoutBtn.style.display = "block";
-    adminTab.style.display = (currentUser === "admin") ? "inline-block" : "none";
-    choiceForm.style.display = "none";
-  }
+  if (currentUser) showTabs();
 };
 
-// --- Login ---
-document.getElementById("doLogin").onclick = () => {
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
-  const errorMsg = document.getElementById("loginError");
+// Button actions
+document.getElementById("loginBtn").onclick = () => toggleForms("login");
+document.getElementById("registerBtn").onclick = () => toggleForms("register");
+document.getElementById("backLogin").onclick = () => toggleForms("home");
+document.getElementById("backRegister").onclick = () => toggleForms("home");
 
-  if (users[username] && users[username].password === password) {
-    if (users[username].status === "inactive") {
-      errorMsg.textContent = "This account is deactivated. Contact admin.";
-      return;
-    }
-    currentUser = username;
-    if (!activeUsers.includes(username)) activeUsers.push(username);
-    localStorage.setItem("currentUser", currentUser);
-    localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
-    errorMsg.textContent = "";
-    loginForm.style.display = "none";
-    document.getElementById("tabs").style.display = "block";
-    document.getElementById("defaultOpen").click();
-    logoutBtn.style.display = "block";
-    alert(`Welcome, ${username}!`);
-    adminTab.style.display = (username === "admin") ? "inline-block" : "none";
-  } else {
-    errorMsg.textContent = "Invalid username or password!";
-  }
-};
+function toggleForms(form) {
+  document.getElementById("choiceForm").style.display = (form==="home")?"block":"none";
+  document.getElementById("loginForm").style.display = (form==="login")?"block":"none";
+  document.getElementById("registerForm").style.display = (form==="register")?"block":"none";
+}
 
-// --- Register ---
+// Register
 document.getElementById("doRegister").onclick = () => {
-  const username = document.getElementById("regUsername").value.trim();
-  const password = document.getElementById("regPassword").value.trim();
-  const otpInput = parseInt(document.getElementById("otp").value);
-  const errorMsg = document.getElementById("regError");
-  const successMsg = document.getElementById("regSuccess");
-
-  if (!username || !password) {
-    errorMsg.textContent = "Please enter username and password!";
-    successMsg.textContent = "";
-    return;
-  }
-  if (otpInput !== OTP) {
-    errorMsg.textContent = "Incorrect One-Time PIN!";
-    successMsg.textContent = "";
-    return;
-  }
-  if (users[username]) {
-    errorMsg.textContent = "Username already exists!";
-    return;
-  }
-
-  users[username] = { password, status: "active" };
+  const u = regUsername.value.trim();
+  const p = regPassword.value.trim();
+  const pin = parseInt(otp.value);
+  if (!u || !p) return regError.textContent = "Fill all fields!";
+  if (pin !== OTP) return regError.textContent = "Invalid OTP!";
+  if (users[u]) return regError.textContent = "Username exists!";
+  users[u] = { password:p, status:"active" };
   localStorage.setItem("users", JSON.stringify(users));
-  errorMsg.textContent = "";
-  successMsg.textContent = "Registration successful! You can now log in.";
+  regError.textContent = ""; regSuccess.textContent = "Registered successfully!";
 };
 
-// --- Logout ---
+// Login
+document.getElementById("doLogin").onclick = () => {
+  const u = loginUsername.value.trim();
+  const p = loginPassword.value.trim();
+  if (!users[u] || users[u].password !== p) return loginError.textContent = "Invalid credentials!";
+  if (users[u].status === "inactive") return loginError.textContent = "Account deactivated!";
+  currentUser = u;
+  if (!activeUsers.includes(u)) activeUsers.push(u);
+  localStorage.setItem("currentUser", u);
+  localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
+  showTabs();
+  alert("Welcome, " + u);
+};
+
+// Logout
 logoutBtn.onclick = () => {
-  if (currentUser) {
-    const idx = activeUsers.indexOf(currentUser);
-    if (idx > -1) activeUsers.splice(idx, 1);
-  }
+  activeUsers = activeUsers.filter(u => u !== currentUser);
   localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
   localStorage.removeItem("currentUser");
   currentUser = null;
+  tabs.style.display = "none";
   logoutBtn.style.display = "none";
-  document.getElementById("tabs").style.display = "none";
   choiceForm.style.display = "block";
-  adminTab.style.display = "none";
-  hideAdminData();
-  alert("You have been logged out securely.");
 };
 
-// --- Tabs ---
-function openTab(evt, tabName) {
-  const tabcontent = document.getElementsByClassName("tabcontent");
-  for (let i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
-  const tablinks = document.getElementsByClassName("tablinks");
-  for (let i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
-  document.getElementById(tabName).style.display = "block";
-  evt.currentTarget.className += " active";
+// Tabs
+function showTabs(){
+  tabs.style.display = "block";
+  logoutBtn.style.display = "block";
+  choiceForm.style.display = "none";
+  adminTab.style.display = (currentUser==="admin")?"inline-block":"none";
+  document.getElementById("defaultOpen").click();
+}
+function openTab(evt, tabName){
+  document.querySelectorAll(".tabcontent").forEach(el=>el.style.display="none");
+  document.querySelectorAll(".tablinks").forEach(el=>el.classList.remove("active"));
+  document.getElementById(tabName).style.display="block";
+  evt.currentTarget.classList.add("active");
 }
 
-// --- Admin Panel Logic ---
-showDataBtn.onclick = () => {
-  const enteredPin = prompt("Enter admin access password:");
-  if (enteredPin === "1997") {
-    updateUsersTable();
-    usersTable.style.display = "table";
-    showDataBtn.style.display = "none";
-    hideDataBtn.style.display = "inline-block";
-  } else alert("Incorrect password. Access denied!");
+// Admin Panel
+const usersTable=document.getElementById("usersTable");
+showDataBtn.onclick=()=>{
+  const pin=prompt("Enter admin access password:");
+  if(pin==="1997"){ updateUsersTable(); usersTable.style.display="table"; showDataBtn.style.display="none"; hideDataBtn.style.display="inline-block"; }
+  else alert("Wrong password!");
 };
-hideDataBtn.onclick = () => { usersTable.style.display = "none"; hideDataBtn.style.display = "none"; showDataBtn.style.display = "inline-block"; };
-function hideAdminData() { usersTable.style.display = "none"; showDataBtn.style.display = "inline-block"; hideDataBtn.style.display = "none"; }
+hideDataBtn.onclick=()=>{ usersTable.style.display="none"; showDataBtn.style.display="inline-block"; hideDataBtn.style.display="none"; };
 
-function updateUsersTable() {
-  usersTable.innerHTML = "<tr><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>";
-  for (const username in users) {
-    const user = users[username];
-    const row = usersTable.insertRow();
-    row.insertCell(0).textContent = username;
-    row.insertCell(1).textContent = user.password;
-    row.insertCell(2).textContent = user.status === "inactive" ? "Inactive" : (activeUsers.includes(username) ? "Online" : "Offline");
+function updateUsersTable(){
+  usersTable.innerHTML="<tr><th>Username</th><th>Password</th><th>Status</th><th>Actions</th></tr>";
+  for(const name in users){
+    const row=usersTable.insertRow();
+    const user=users[name];
+    row.insertCell(0).textContent=name;
+    row.insertCell(1).textContent=user.password;
+    const statusCell=row.insertCell(2);
+    if(user.status==="inactive") statusCell.innerHTML=`<span class='status-inactive'>Inactive</span>`;
+    else if(activeUsers.includes(name)) statusCell.innerHTML=`<span class='status-online'>Online</span>`;
+    else statusCell.innerHTML=`<span class='status-active'>Active</span>`;
 
-    const actionsCell = row.insertCell(3);
-    if (username !== "admin") {
-      if (user.status === "active") {
-        const deactivateBtn = document.createElement("button");
-        deactivateBtn.textContent = "Deactivate";
-        deactivateBtn.className = "actionBtn deactivateBtn";
-        deactivateBtn.onclick = () => { user.status = "inactive"; localStorage.setItem("users", JSON.stringify(users)); updateUsersTable(); };
-        actionsCell.appendChild(deactivateBtn);
+    const action=row.insertCell(3);
+    if(name!=="admin"){
+      if(user.status==="active"){
+        const d=document.createElement("button");
+        d.textContent="Deactivate"; d.className="actionBtn deactivateBtn";
+        d.onclick=()=>{ users[name].status="inactive"; saveUsers(); updateUsersTable(); };
+        action.appendChild(d);
       } else {
-        const reactivateBtn = document.createElement("button");
-        reactivateBtn.textContent = "Reactivate";
-        reactivateBtn.className = "actionBtn reactivateBtn";
-        reactivateBtn.onclick = () => { user.status = "active"; localStorage.setItem("users", JSON.stringify(users)); updateUsersTable(); };
-        actionsCell.appendChild(reactivateBtn);
+        const r=document.createElement("button");
+        r.textContent="Reactivate"; r.className="actionBtn reactivateBtn";
+        r.onclick=()=>{ users[name].status="active"; saveUsers(); updateUsersTable(); };
+        action.appendChild(r);
       }
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Delete";
-      deleteBtn.className = "actionBtn deleteBtn";
-      deleteBtn.onclick = () => {
-        if (confirm(`Are you sure you want to delete ${username}?`)) {
-          delete users[username];
-          localStorage.setItem("users", JSON.stringify(users));
-          updateUsersTable();
-        }
-      };
-      actionsCell.appendChild(deleteBtn);
-    } else {
-      actionsCell.textContent = "Admin";
-    }
+      const del=document.createElement("button");
+      del.textContent="Delete"; del.className="actionBtn deleteBtn";
+      del.onclick=()=>{ if(confirm(`Delete ${name}?`)){ delete users[name]; saveUsers(); updateUsersTable(); } };
+      action.appendChild(del);
+    } else action.textContent="Admin";
   }
 }
+function saveUsers(){ localStorage.setItem("users", JSON.stringify(users)); }
 
-// --- Accordion ---
-document.querySelectorAll(".accordionBtn").forEach(btn => {
-  btn.addEventListener("click", function() {
-    const panel = this.nextElementSibling;
-    const isOpen = panel.style.maxHeight && panel.style.maxHeight !== "0px";
-    document.querySelectorAll(".panel").forEach(p => p.style.maxHeight = null);
-    panel.style.maxHeight = isOpen ? null : panel.scrollHeight + "px";
+// Accordion
+document.querySelectorAll(".accordionBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const panel=btn.nextElementSibling;
+    const open=panel.style.maxHeight;
+    document.querySelectorAll(".panel").forEach(p=>p.style.maxHeight=null);
+    panel.style.maxHeight=open?"":panel.scrollHeight+"px";
   });
 });
 
-// --- Simulated Spectrum Data ---
-setTimeout(() => {
-  document.getElementById("spectrumData").innerHTML = `
-    <strong>Available Frequencies:</strong><br>
-    433.1 MHz - Free<br>
-    434.5 MHz - Occupied<br>
-    445.0 MHz - Free
-  `;
-}, 1000);
+// Dummy Spectrum Data
+setTimeout(()=>{ document.getElementById("spectrumData").innerHTML="433.1 MHz - Free<br>434.5 MHz - Occupied<br>445.0 MHz - Free"; },1000);
 </script>
 </body>
 </html>
